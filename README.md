@@ -33,4 +33,5 @@ Each artefact has the following information: an owner – the developer that add
 project, a name that must be unique within the project, a description (e.g. java code, UML class diagram)
 and a sequence of revisions. Each revision includes the username of the team member responsible for
 updating the artefact, a date, and a short description of the revision.
+
 [POO2122-TP02.v1.4.pdf](https://github.com/RodrigoRafaelSantos7/VersionControlSystem2/files/8710879/POO2122-TP02.v1.4.pdf)
