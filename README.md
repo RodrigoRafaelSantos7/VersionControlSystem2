@@ -28,9 +28,9 @@ managers can also work on projects that are not managed by them.
   **Project** Each project includes the following information: a unique identifier, the manager, and the
 relevant keywords. There are two types of projects: in-house or outsourced. Outsourced projects have
 no associated developing team, instead, it is just kept the name of the company developing the project.
-In-house projects have a confidentiality level, a de[POO2122-TP02.v1.4.pdf](https://github.com/RodrigoRafaelSantos7/VersionControlSystem2/files/8710879/POO2122-TP02.v1.4.pdf)
-veloping team, and associated artefacts.
+In-house projects have a confidentiality level, a developing team, and associated artefacts.
 Each artefact has the following information: an owner – the developer that added the artefact to the
 project, a name that must be unique within the project, a description (e.g. java code, UML class diagram)
 and a sequence of revisions. Each revision includes the username of the team member responsible for
 updating the artefact, a date, and a short description of the revision.
+[POO2122-TP02.v1.4.pdf](https://github.com/RodrigoRafaelSantos7/VersionControlSystem2/files/8710879/POO2122-TP02.v1.4.pdf)
