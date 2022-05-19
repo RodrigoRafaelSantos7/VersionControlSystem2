@@ -1,4 +1,5 @@
 import org.jetbrains.annotations.NotNull;
+import project.Project;
 import project.ProjectTypes;
 import user.Developer;
 import user.Manager;
@@ -50,6 +51,9 @@ public class Main {
                     break;
                 case CREATE:
                     create(input, control);
+                    break;
+                case PROJECTS:
+                    projects(control);
                     break;
                 default:
                     System.out.println(Command.UNKNOWN.getText());
@@ -184,6 +188,10 @@ public class Main {
             System.out.printf(e.getMessage(), projectManager,
                     control.getClearanceLvl(projectManager));
         }
+    }
+
+    private static void projects(VersionControlSystem control){
+        Iterator<Project> it = control.listAllProjects();
 
     }
 }

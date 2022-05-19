@@ -1,5 +1,6 @@
 package version.control.system;
 
+import project.Project;
 import user.User;
 import version.control.system.exceptions.*;
 
@@ -47,4 +48,5 @@ public interface VersionControlSystem {
             ProjectTypeDoesNotExistException, ManagerUsernameDoesNotExistException,
             ProjectNameAlreadyExistException, InvalidConfidentialityLevelException;
 
+    Iterator<Project> listAllProjects();
 }

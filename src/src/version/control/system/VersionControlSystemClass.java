@@ -21,7 +21,7 @@ public class VersionControlSystemClass implements VersionControlSystem {
     private final Map<String, Manager> managers;
     private final Map<String, Developer> developers;
     private final SortedMap<String, User> usersAlphabetic;
-    private final Map<String, Project> projects;
+    private final LinkedHashMap<String, Project> projects;
     private final Map<String, Inhouse> inhouseProjects;
     private final Map<String, Outsourced> outsourcedProjects;
 
@@ -30,7 +30,7 @@ public class VersionControlSystemClass implements VersionControlSystem {
         this.managers = new HashMap<>();
         this.developers = new HashMap<>();
         this.usersAlphabetic = new TreeMap<>();
-        this.projects = new HashMap<>();
+        this.projects = new LinkedHashMap<>();
         this.inhouseProjects = new HashMap<>();
         this.outsourcedProjects = new HashMap<>();
     }
@@ -91,6 +91,11 @@ public class VersionControlSystemClass implements VersionControlSystem {
         if (projectype.equalsIgnoreCase(ProjectTypes.INHOUSE.getText()))
             registerInhouseProject(managerUsername, projectName, keywords, confidentialityLevel);
         else registerOutsourcedProject(managerUsername, projectName, keywords, companyName);
+    }
+
+    @Override
+    public Iterator<Project> listAllProjects() {
+        return projects.values().iterator();
     }
 
 
