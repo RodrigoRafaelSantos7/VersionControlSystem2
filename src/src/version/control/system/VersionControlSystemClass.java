@@ -56,7 +56,7 @@ public class VersionControlSystemClass implements VersionControlSystem {
         developers.put(username, developer);
         usersAlphabetic.put(username, developer);
 
-        managers.get(managerUsername).
+        managers.get(managerUsername).addDeveloper(username, developer);
     }
 
     @Override
