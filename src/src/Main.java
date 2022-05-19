@@ -1,13 +1,14 @@
 import org.jetbrains.annotations.NotNull;
+import project.ProjectTypes;
 import user.Developer;
 import user.Manager;
 import user.User;
+import user.UserTypes;
 import version.control.system.Command;
 import version.control.system.Output;
 import version.control.system.VersionControlSystem;
 import version.control.system.VersionControlSystemClass;
-import version.control.system.exceptions.ManagerUsernameDoesNotExistException;
-import version.control.system.exceptions.UserAlreadyExistsException;
+import version.control.system.exceptions.*;
 
 import java.util.Iterator;
 import java.util.Scanner;
@@ -19,9 +20,6 @@ import java.util.Scanner;
  * @author - Sebastiao Martins, 63447.
  */
 public class Main {
-
-    private static final String DEVELOPER = "Developer";
-    private static final String MANAGER = "Manager";
 
     /**
      * Main Program. Invokes the command interpreter.
@@ -49,6 +47,9 @@ public class Main {
                     break;
                 case USERS:
                     users(control);
+                    break;
+                case CREATE:
+                    create(input, control);
                     break;
                 default:
                     System.out.println(Command.UNKNOWN.getText());
@@ -96,7 +97,7 @@ public class Main {
         String jobPosition = input.next();
         String username = input.next();
 
-        if (jobPosition.equalsIgnoreCase(DEVELOPER)) {
+        if (jobPosition.equalsIgnoreCase(UserTypes.DEVELOPER.getText())) {
             String managerUsername = input.next();
             int clearanceLvl = input.nextInt();
             try {
@@ -107,7 +108,7 @@ public class Main {
             } catch (ManagerUsernameDoesNotExistException e) {
                 System.out.printf(e.getMessage(), managerUsername);
             }
-        } else if (jobPosition.equalsIgnoreCase(MANAGER)) {
+        } else if (jobPosition.equalsIgnoreCase(UserTypes.MANAGER.getText())) {
             int clearanceLvl = input.nextInt();
             try {
                 control.registerManager(username, clearanceLvl);
@@ -132,20 +133,56 @@ public class Main {
         if (!it.hasNext()) {
             System.out.print(Output.NO_USERS.getText());
         } else {
-            System.out.println(Output.HEADER_USERS.getText());
+            System.out.print(Output.HEADER_USERS.getText());
             while (it.hasNext()) {
                 User user = it.next();
                 if (user instanceof Developer) {
                     System.out.printf(Output.DEVELOPER_OUTPUT.getText(), user.getUsername(),
                             ((Developer) user).getManagerUsername(),
                             ((Developer) user).getNumberOfProjects());
-                } else if (user instanceof Manager) {
+                } else {
                     System.out.printf(Output.MANAGER_OUTPUT.getText(), user.getUsername(),
                             ((Manager) user).getNumberOfDevs(),
                             ((Manager) user).getProjectsAsManager(),
                             ((Manager) user).getProjectsAsMembers());
                 }
             }
+        }
+    }
+
+    private static void create(Scanner input, VersionControlSystem control) {
+        String projectManager = input.next();
+        String projectType = input.next();
+        String projectName = input.nextLine().trim();
+        int numberKeyWords = input.nextInt();
+        String[] keyWords = new String[numberKeyWords];
+        int confidentialityLvl = 0;
+        String companyName = null;
+
+        for (int i = 0; i < numberKeyWords; i++) {
+            String keyWord = input.next();
+            keyWords[i] = keyWord;
+        }
+
+        if (projectType.equals(ProjectTypes.INHOUSE.getText())) {
+            confidentialityLvl = input.nextInt();
+        } else {
+            companyName = input.next();
+        }
+
+        try {
+            control.addNewProject(projectManager, projectType, projectName, keyWords,
+                    confidentialityLvl, companyName);
+            System.out.printf(Output.PROJECT_ADDED.getText(), projectName);
+        } catch (ProjectTypeDoesNotExistException e) {
+            System.out.print(e.getMessage());
+        } catch (ManagerUsernameDoesNotExistException e) {
+            System.out.printf(e.getMessage(), projectManager);
+        } catch (ProjectNameAlreadyExistException e) {
+            System.out.printf(e.getMessage(), projectName);
+        } catch (InvalidConfidentialityLevelException e) {
+            System.out.printf(e.getMessage(), projectManager,
+                    control.getClearanceLvl(projectManager));
         }
 
     }

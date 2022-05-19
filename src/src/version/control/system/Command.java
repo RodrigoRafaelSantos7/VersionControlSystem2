@@ -16,6 +16,7 @@ public enum Command {
     HELP("help - shows the available commands\n"),
     REGISTER("register - adds a new user\n"),
     USERS("users - lists all registered users\n"),
+    CREATE("create - create a new project\n"),
     UNKNOWN("Unknown command. Type help to see available commands."),
     ;
 

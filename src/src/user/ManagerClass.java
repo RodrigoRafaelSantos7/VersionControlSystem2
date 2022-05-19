@@ -1,20 +1,22 @@
 package user;
 
 
+import project.Project;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ManagerClass extends AbstractUser implements Manager {
 
-    private int projectsAsManager;
-    private int projectsAsMembers;
     private final Map<String, Developer> developers;
+    private final Map<String, Project> projectsAsManager;
+    private final Map<String, Project> projectsAsMember;
 
     public ManagerClass(String username, int clearanceLvl) {
         super(username, clearanceLvl);
-        this.projectsAsManager = 0;
-        this.projectsAsMembers = 0;
         this.developers = new HashMap<>();
+        this.projectsAsManager = new HashMap<>();
+        this.projectsAsMember = new HashMap<>();
     }
 
     @Override
@@ -23,17 +25,22 @@ public class ManagerClass extends AbstractUser implements Manager {
     }
 
     @Override
-    public int getProjectsAsManager() {
-        return projectsAsManager;
-    }
-
-    @Override
-    public int getProjectsAsMembers() {
-        return projectsAsMembers;
+    public void addProjectAsManager(String projectName, Project project) {
+        projectsAsManager.put(projectName, project);
     }
 
     @Override
     public int getNumberOfDevs() {
         return developers.size();
+    }
+
+    @Override
+    public int getProjectsAsManager() {
+        return projectsAsManager.size();
+    }
+
+    @Override
+    public int getProjectsAsMembers() {
+        return projectsAsMember.size();
     }
 }

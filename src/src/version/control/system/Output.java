@@ -20,6 +20,7 @@ public enum Output {
     HEADER_USERS("All registered users:\n"),
     DEVELOPER_OUTPUT("developer %s is managed by %s [%d]\n"),
     MANAGER_OUTPUT("manager %s [%d, %d, %d]\n"),
+    PROJECT_ADDED("%s project was created\n"),
     ;
 
     private final String text; // The variable that stores the text associated with the constant.

@@ -1,10 +1,16 @@
 package user;
 
 public interface User {
+
     /**
-     * @return the name of the user.
+     * @return - The clearance Level.
      */
-   String getUsername();
+    int getClearanceLvl();
+
+    /**
+     * @return - The name of the user.
+     */
+    String getUsername();
 
 
 }
