@@ -1,13 +1,11 @@
 package version.control.system;
 
-import user.DeveloperClass;
-import user.ManagerClass;
-import user.User;
+
+import user.*;
 import version.control.system.exceptions.ManagerUsernameDoesNotExistException;
 import version.control.system.exceptions.UserAlreadyExistsException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * System of the project.
@@ -20,13 +18,16 @@ public class VersionControlSystemClass implements VersionControlSystem {
 
 
     private final Map<String, User> users;
-    private final Map<String, User> managers;
-    private final Map<String, User> developers;
+    private final Map<String, Manager> managers;
+    private final Map<String, Developer> developers;
+    private final SortedMap<String, User> usersAlphabetic;
 
     public VersionControlSystemClass() {
         this.users = new HashMap<>();
         this.managers = new HashMap<>();
         this.developers = new HashMap<>();
+        this.usersAlphabetic = new TreeMap<>();
+
     }
 
     @Override
@@ -35,9 +36,10 @@ public class VersionControlSystemClass implements VersionControlSystem {
         if (users.containsKey(username))
             throw new UserAlreadyExistsException();
 
-        User manager = new ManagerClass(username, clearanceLvl);
+        Manager manager = new ManagerClass(username, clearanceLvl);
         users.put(username, manager);
         managers.put(username, manager);
+        usersAlphabetic.put(username, manager);
     }
 
     @Override
@@ -48,8 +50,17 @@ public class VersionControlSystemClass implements VersionControlSystem {
         if (!managers.containsKey(managerUsername))
             throw new ManagerUsernameDoesNotExistException();
 
-        User developer = new DeveloperClass(username, managerUsername, clearanceLvl);
+        Developer developer = new DeveloperClass(username, managerUsername, clearanceLvl);
+
         users.put(username, developer);
         developers.put(username, developer);
+        usersAlphabetic.put(username, developer);
+
+        managers.get(managerUsername).
+    }
+
+    @Override
+    public Iterator<User> listAllUsers() {
+        return usersAlphabetic.values().iterator();
     }
 }

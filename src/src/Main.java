@@ -1,4 +1,7 @@
 import org.jetbrains.annotations.NotNull;
+import user.Developer;
+import user.Manager;
+import user.User;
 import version.control.system.Command;
 import version.control.system.Output;
 import version.control.system.VersionControlSystem;
@@ -6,6 +9,7 @@ import version.control.system.VersionControlSystemClass;
 import version.control.system.exceptions.ManagerUsernameDoesNotExistException;
 import version.control.system.exceptions.UserAlreadyExistsException;
 
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -44,6 +48,7 @@ public class Main {
                     register(input, control);
                     break;
                 case USERS:
+                    users(control);
                     break;
                 default:
                     System.out.println(Command.UNKNOWN.getText());
@@ -114,5 +119,34 @@ public class Main {
             System.out.print(Output.UNKNOWN_JOB.getText());
             input.nextLine();
         }
+    }
+
+    /**
+     * Lists all the Users of the system. Username alphabetic order.
+     *
+     * @param control -  the VersionControlSystem from where the users will be listed by
+     *                alphabetic order.
+     */
+    private static void users(VersionControlSystem control) {
+        Iterator<User> it = control.listAllUsers();
+        if (!it.hasNext()) {
+            System.out.print(Output.NO_USERS.getText());
+        } else {
+            System.out.println(Output.HEADER_USERS.getText());
+            while (it.hasNext()) {
+                User user = it.next();
+                if (user instanceof Developer) {
+                    System.out.printf(Output.DEVELOPER_OUTPUT.getText(), user.getUsername(),
+                            ((Developer) user).getManagerUsername(),
+                            ((Developer) user).getNumberOfProjects());
+                } else if (user instanceof Manager) {
+                    System.out.printf(Output.MANAGER_OUTPUT.getText(), user.getUsername(),
+                            ((Manager) user).getNumberOfDevs(),
+                            ((Manager) user).getProjectsAsManager(),
+                            ((Manager) user).getProjectsAsMembers());
+                }
+            }
+        }
+
     }
 }

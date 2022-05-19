@@ -15,7 +15,12 @@ public enum Output {
     EXITING("Bye!\n"),
     UNKNOWN_JOB("Unknown job position.\n"),
     MANAGER_ADDED("User %s was registered as project manager with clearance level %d\n"),
-    DEVELOPER_ADDED("User %s was registered as software developer with clearance level %d\n");
+    DEVELOPER_ADDED("User %s was registered as software developer with clearance level %d\n"),
+    NO_USERS("No users registered.\n"),
+    HEADER_USERS("All registered users:\n"),
+    DEVELOPER_OUTPUT("developer %s is managed by %s [%d]\n"),
+    MANAGER_OUTPUT("manager %s [%d, %d, %d]\n"),
+    ;
 
     private final String text; // The variable that stores the text associated with the constant.
 

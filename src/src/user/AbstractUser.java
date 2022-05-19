@@ -1,6 +1,8 @@
 package user;
 
-public abstract class AbstractUser implements User {
+import java.util.Objects;
+
+abstract class AbstractUser implements User {
 
     protected final String username;
     protected final int clearanceLvl;
@@ -9,5 +11,11 @@ public abstract class AbstractUser implements User {
         this.username = username;
         this.clearanceLvl = clearanceLvl;
     }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
 
 }
