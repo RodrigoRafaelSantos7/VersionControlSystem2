@@ -2,35 +2,13 @@ package user;
 
 import project.Project;
 
-public interface Manager extends User {
-    /**
-     * @return - The number of Developers associated with the Manager.
-     */
-    int getNumberOfDevs();
+public interface Manager extends User{
 
-    /**
-     * @return - The number of project managed by the Manager.
-     */
-    int getProjectsAsManager();
+    void addDeveloper(User developer);
 
-    /**
-     * @return - The number of projects as Member.
-     */
-    int getProjectsAsMembers();
+    void addProjectAsManager(Project project);
 
-    /**
-     * Associates a new Developer to the manager.
-     *
-     * @param username  - the username of the developer.
-     * @param developer - the developer.
-     */
-    void addDeveloper(String username, Developer developer);
+    int getNumDevelopers();
 
-    /**
-     * Associates a new Project to the manager.
-     *
-     * @param projectName - the name of the project
-     * @param project     - the project.
-     */
-    void addProjectAsManager(String projectName, Project project);
+    int getNumProjectsAsManager();
 }

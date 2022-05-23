@@ -6,33 +6,45 @@ package version.control.system;
  * @author - Rodrigo Santos, 63263.
  * @author - Sebastiao Martins, 63447.
  */
-
 public enum Command {
 
     /**
      * Constants.
      */
-    EXIT("exit - terminates the execution of the program\n"),
-    HELP("help - shows the available commands\n"),
     REGISTER("register - adds a new user\n"),
     USERS("users - lists all registered users\n"),
-    CREATE("create - create a new project\n"),
+    CREATE("create - creates a new project\n"),
     PROJECTS("projects - lists all projects\n"),
-    UNKNOWN("Unknown command. Type help to see available commands."),
+    TEAM("team - adds team members to a project\n"),
+    ARTEFACTS("artefacts - adds artefacts to a project\n"),
+    PROJECT("project - shows detailed project information\n"),
+    REVISION("revision - revises an artefact\n"),
+    MANAGES("manages - lists developers of a manager\n"),
+    KEYWORD("keyword - filters projects by keyword\n"),
+    CONFIDENTIALITY("confidentiality - filters projects by confidentiality" +
+            " level\n"),
+    WORKAHOLICS("workaholics - top 3 employees with more artefacts updates\n"),
+    COMMON("common - employees with more projects in common\n"),
+    HELP("help - shows the available commands\n"),
+    EXIT("exit - terminates the execution of the program\n"),
+    UNKNOWN("Unknown command. Type help to see available commands.\n"),
     ;
 
-    private final String text; // The variable that stores the text associated with the constant.
+    private final String commandDescription; //The description of the command.
 
-    Command(String text) {
-        this.text = text;
+    /**
+     * Constructor.
+     *
+     * @param commandDescription - The description of the command.
+     */
+    Command(String commandDescription) {
+        this.commandDescription = commandDescription;
     }
 
     /**
-     * Getter - returns the text associated with the constant.
-     *
-     * @return - the text associated with the constant.
+     * @return - The description of the command.
      */
-    public String getText() {
-        return text;
+    public String getCommandDescription() {
+        return commandDescription;
     }
 }

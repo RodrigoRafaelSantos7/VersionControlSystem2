@@ -1,46 +1,45 @@
 package user;
 
-
 import project.Project;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ManagerClass extends AbstractUser implements Manager {
 
-    private final Map<String, Developer> developers;
     private final Map<String, Project> projectsAsManager;
-    private final Map<String, Project> projectsAsMember;
+    private final HashSet<User> developers;
 
     public ManagerClass(String username, int clearanceLvl) {
         super(username, clearanceLvl);
-        this.developers = new HashMap<>();
         this.projectsAsManager = new HashMap<>();
-        this.projectsAsMember = new HashMap<>();
+        this.developers = new HashSet<>();
     }
 
     @Override
-    public void addDeveloper(String username, Developer developer) {
-        developers.put(username, developer);
+    public boolean hasProject(String projectName) {
+        return projectsAsMember.containsKey(projectName) ||
+                projectsAsManager.containsKey(projectName);
     }
 
     @Override
-    public void addProjectAsManager(String projectName, Project project) {
-        projectsAsManager.put(projectName, project);
+    public void addDeveloper(User developer) {
+        developers.add(developer);
     }
 
     @Override
-    public int getNumberOfDevs() {
+    public void addProjectAsManager(Project project) {
+        projectsAsManager.put(project.getProjectName(), project);
+    }
+
+    @Override
+    public int getNumDevelopers() {
         return developers.size();
     }
 
     @Override
-    public int getProjectsAsManager() {
+    public int getNumProjectsAsManager() {
         return projectsAsManager.size();
-    }
-
-    @Override
-    public int getProjectsAsMembers() {
-        return projectsAsMember.size();
     }
 }

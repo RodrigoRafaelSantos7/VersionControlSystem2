@@ -1,16 +1,17 @@
 package user;
 
+import project.Project;
+
 public interface User {
 
-    /**
-     * @return - The clearance Level.
-     */
-    int getClearanceLvl();
+    int getNumberOfProjectsAsMember();
 
-    /**
-     * @return - The name of the user.
-     */
     String getUsername();
 
+    int getClearanceLvl();
+
+    void addProjectAsMember(Project project);
+
+    boolean hasProject(String projectName);
 
 }

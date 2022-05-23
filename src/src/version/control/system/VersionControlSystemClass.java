@@ -1,96 +1,97 @@
 package version.control.system;
 
-
+import artefact.Artefact;
 import project.*;
 import user.*;
 import version.control.system.exceptions.*;
 
 import java.util.*;
 
-/**
- * System of the project.
- *
- * @author - Rodrigo Santos, 63263.
- * @author - Sebastiao Martins, 63447.
- */
-
 public class VersionControlSystemClass implements VersionControlSystem {
 
-
-    private final Map<String, User> users;
+    //Instance variables.
+    private final SortedMap<String, User> users;
     private final Map<String, Manager> managers;
-    private final Map<String, Developer> developers;
-    private final SortedMap<String, User> usersAlphabetic;
+    private final Map<String, List<Project>> projectByKeywords;
     private final LinkedHashMap<String, Project> projects;
-    private final Map<String, Inhouse> inhouseProjects;
-    private final Map<String, Outsourced> outsourcedProjects;
 
+    /**
+     * Constructor.
+     */
     public VersionControlSystemClass() {
-        this.users = new HashMap<>();
+        this.users = new TreeMap<>();
         this.managers = new HashMap<>();
-        this.developers = new HashMap<>();
-        this.usersAlphabetic = new TreeMap<>();
+        this.projectByKeywords = new HashMap<>();
         this.projects = new LinkedHashMap<>();
-        this.inhouseProjects = new HashMap<>();
-        this.outsourcedProjects = new HashMap<>();
     }
 
-    @Override
-    public void registerManager(String username, int clearanceLvl) throws
-            UserAlreadyExistsException {
-        if (hasUser(username))
-            throw new UserAlreadyExistsException();
-
-        Manager manager = new ManagerClass(username, clearanceLvl);
-        users.put(username, manager);
-        managers.put(username, manager);
-        usersAlphabetic.put(username, manager);
-    }
 
     @Override
-    public void registerDeveloper(String username, String managerUsername, int clearanceLvl) throws
-            ManagerUsernameDoesNotExistException, UserAlreadyExistsException {
-        if (hasUser(username))
-            throw new UserAlreadyExistsException();
-        if (hasManager(managerUsername))
-            throw new ManagerUsernameDoesNotExistException();
+    public void registerUser(String jobPosition, String username, String managerUsername,
+                             int clearanceLvl) throws JobPositionDoesNotExistException,
+            UsernameAlreadyExistsException, ManagerUsernameDoesNotExistException {
+        if (!hasJobPoisition(jobPosition)) throw new JobPositionDoesNotExistException();
+        if (getUser(username) != null) throw new UsernameAlreadyExistsException();
 
-        Developer developer = new DeveloperClass(username, managerUsername, clearanceLvl);
+        User user;
 
-        users.put(username, developer);
-        developers.put(username, developer);
-        usersAlphabetic.put(username, developer);
+        if (jobPosition.equals(UserTypes.MANAGER.getText())) {
+            user = new ManagerClass(username, clearanceLvl);
+            managers.put(username, (Manager) user);
+        } else {
+            if (getManager(managerUsername) == null)
+                throw new ManagerUsernameDoesNotExistException();
 
-        managers.get(managerUsername).addDeveloper(username, developer);
+            user = new DeveloperClass(username, managerUsername, clearanceLvl);
+            getManager(managerUsername).addDeveloper(user);
+        }
+
+        users.put(username, user);
     }
 
     @Override
     public Iterator<User> listAllUsers() {
-        return usersAlphabetic.values().iterator();
+        return users.values().iterator();
     }
 
     @Override
-    public int getClearanceLvl(String managerUsername) {
-        return getUser(managerUsername).getClearanceLvl();
-    }
-
-    @Override
-    public void addNewProject(String managerUsername, String projectype, String projectName,
-                              String[] keywords, int confidentialityLevel, String companyName)
+    public void registerProject(String managerUsername, String projectType, String projectName,
+                                String[] keywords, String companyName, int confidentialityLvl)
             throws ProjectTypeDoesNotExistException, ManagerUsernameDoesNotExistException,
-            ProjectNameAlreadyExistException, InvalidConfidentialityLevelException {
-        if (!isValidProjectType(projectype))
+            ProjectNameAlreadyExistsException, InsuficientClearanceLevelException {
+        if (!hasProjectType(projectType))
             throw new ProjectTypeDoesNotExistException();
-        if (hasManager(managerUsername))
+        if (getManager(managerUsername) == null)
             throw new ManagerUsernameDoesNotExistException();
-        if (hasProjectName(projectName))
-            throw new ProjectNameAlreadyExistException();
-        if (isValidConfidentialityLvl(confidentialityLevel, managerUsername))
-            throw new InvalidConfidentialityLevelException();
+        if (getProject(projectName) != null)
+            throw new ProjectNameAlreadyExistsException();
 
-        if (projectype.equalsIgnoreCase(ProjectTypes.INHOUSE.getText()))
-            registerInhouseProject(managerUsername, projectName, keywords, confidentialityLevel);
-        else registerOutsourcedProject(managerUsername, projectName, keywords, companyName);
+        Project project;
+        if (projectType.equals(ProjectTypes.INHOUSE.getText())) {
+            if (!hasClearanceLevel(managerUsername, confidentialityLvl))
+                throw new InsuficientClearanceLevelException();
+
+            project = new InhouseClass(managerUsername, projectName, keywords, confidentialityLvl);
+        } else project = new OutsourcedClass(managerUsername, projectName, keywords, companyName);
+
+        projects.put(projectName, project);
+
+        for (String keyword :
+                keywords) {
+            List<Project> list = projectByKeywords.get(keyword);
+            if (list == null) {
+                list = new LinkedList<>();
+                projectByKeywords.put(keyword, list);
+            }
+            list.add(project);
+        }
+
+        getManager(managerUsername).addProjectAsManager(project);
+    }
+
+    @Override
+    public int getClearanceLvl(String username) {
+        return getUser(username).getClearanceLvl();
     }
 
     @Override
@@ -98,90 +99,103 @@ public class VersionControlSystemClass implements VersionControlSystem {
         return projects.values().iterator();
     }
 
+    @Override
+    public Iterator<String> addUsersToProject(String managerUsername, String projectName,
+                                              String[] usernames) throws
+            ManagerUsernameDoesNotExistException, ProjectNameDoesNotExistException,
+            InvalidManagerException {
+        if (getManager(managerUsername) == null)
+            throw new ManagerUsernameDoesNotExistException();
+        if (!(getProject(projectName) instanceof Inhouse project))
+            throw new ProjectNameDoesNotExistException();
+        if (!managerUsername.equals(getProjectManagerUsername(projectName)))
+            throw new InvalidManagerException();
 
-    /**
-     * Checks if the system has a User with the given name.
-     *
-     * @param username -  The username we want to check.
-     * @return - True if there is a user with the given username. Else returns False.
-     */
-    private boolean hasUser(String username) {
-        return users.containsKey(username);
+        String[] res = new String[usernames.length];
+        for (int i = 0; i < usernames.length; i++) {
+            String username = usernames[i];
+
+            if (project.hasMember(username))
+                res[i] = String.format(Output.ALREADY_MEMBER.getOutput(), username);
+            else if (getUser(username) == null)
+                res[i] = String.format(Output.USERNAME_DOES_NOT_EXIST.getOutput(), username);
+            else if (project.getConfidentialityLvl() > getUser(username).getClearanceLvl())
+                res[i] = String.format(Output.INSUFFICIENT_CLEARANCE.getOutput(), username);
+            else {
+                res[i] = String.format(Output.ADDED_TEAM.getOutput(), username);
+
+                User user = getUser(username);
+
+                project.addMember(user);
+                user.addProjectAsMember(project);
+            }
+        }
+
+        return Arrays.stream(res).iterator();
     }
 
-    /**
-     * Checks if the system has a Manager with the given name.
-     *
-     * @param username -  The username we want to check.
-     * @return - True if there is a Manager with the given username. Else returns False.
-     */
-    private boolean hasManager(String username) {
-        return !managers.containsKey(username);
+    @Override
+    public String getProjectManagerUsername(String projectName) {
+        return getProject(projectName).getManagerUsername();
     }
 
-    /**
-     * Finds the User in the HashMap and returns it.
-     *
-     * @param username - The name of the user we want to return.
-     * @return - The User with the given username.
-     */
+    @Override
+    public Iterator<String> addArtefactsToProject(String memberUsername, String projectName,
+                                                  Artefact[] artefacts) throws
+            UserDoesNotExistException, ProjectNameDoesNotExistException,
+            UserDoesNotExistInProjectException {
+        if (getUser(memberUsername) == null)
+            throw new UserDoesNotExistException();
+        if (!(getProject(projectName) instanceof Inhouse project))
+            throw new ProjectNameDoesNotExistException();
+        if (!project.hasMember(memberUsername))
+            throw new UserDoesNotExistInProjectException();
+
+        String[] res = new String[artefacts.length];
+
+        for (int i = 0; i < artefacts.length; i++) {
+            Artefact artefact = artefacts[i];
+
+            if (project.hasArtefact(artefact.getName())) {
+                res[i] = String.format(Output.ALREADY_IN_PROJECT.getOutput(), artefact.getName());
+            } else if (artefact.getConfidentialityLvl() > project.getConfidentialityLvl()) {
+                res[i] = String.format(Output.EXCEEDS_CONFIDENTIALITY.getOutput(),
+                        artefact.getName());
+            } else {
+                res[i] = String.format(Output.ADDED_PROJECT.getOutput(), artefact.getName());
+
+                project.addArtefact(artefact);
+            }
+        }
+
+        return Arrays.stream(res).iterator();
+    }
+
     private User getUser(String username) {
         return users.get(username);
     }
 
-    /**
-     * Checks if the given project type is valid.
-     *
-     * @param projectType - The type of the project.
-     * @return - True if is the projectType is valis. Else returns False.
-     */
-    private boolean isValidProjectType(String projectType) {
-        return projectType.equalsIgnoreCase(ProjectTypes.INHOUSE.getText()) ||
-                projectType.equalsIgnoreCase(ProjectTypes.OUTSOURCED.getText());
+    private Manager getManager(String username) {
+        return managers.get(username);
     }
 
-    /**
-     * Checks if the project name if already in use.
-     *
-     * @param projectName - The name of the project.
-     * @return - True if the project name is already in use. Else returns False.
-     */
-    private boolean hasProjectName(String projectName) {
-        return projects.containsKey(projectName);
+    private boolean hasJobPoisition(String jobPosition) {
+        return jobPosition.equals(UserTypes.MANAGER.getText()) ||
+                jobPosition.equals(UserTypes.DEVELOPER.getText());
     }
 
-    /**
-     * Checks if the given condidentiality level is greater than the given manager clearance level.
-     *
-     * @param confidentialityLvl - The confidentiality level we want to check.
-     * @param managerUsername    - The username of the manager we want to compare.
-     * @return - True if the given condidentiality level is greater than the given manager. Else
-     * returns false.
-     */
-    private boolean isValidConfidentialityLvl(int confidentialityLvl, String managerUsername) {
-        return confidentialityLvl > getUser(managerUsername).getClearanceLvl();
+    private boolean hasProjectType(String projectType) {
+        return projectType.equals(ProjectTypes.INHOUSE.getText()) ||
+                projectType.equals(ProjectTypes.OUTSOURCED.getText());
+    }
+
+    private Project getProject(String projectName) {
+        return projects.get(projectName);
+    }
+
+    private boolean hasClearanceLevel(String managerUsername, int confidentialityLvl) {
+        return getManager(managerUsername).getClearanceLvl() >= confidentialityLvl;
     }
 
 
-    private void registerInhouseProject(String managerUsername,
-                                        String projectName, String[] keywords,
-                                        int confidentialityLevel) {
-        Inhouse project = new InhouseClass(managerUsername, projectName,
-                keywords, confidentialityLevel);
-
-        inhouseProjects.put(projectName, project);
-        projects.put(projectName, project);
-        ((Manager) getUser(managerUsername)).addProjectAsManager(projectName, project);
-    }
-
-    private void registerOutsourcedProject(String managerUsername,
-                                           String projectName, String[] keywords,
-                                           String companyName) {
-        Outsourced project = new OutsourcedClass(managerUsername, projectName,
-                keywords, companyName);
-
-        outsourcedProjects.put(projectName, project);
-        projects.put(projectName, project);
-        ((Manager) getUser(managerUsername)).addProjectAsManager(projectName, project);
-    }
 }
